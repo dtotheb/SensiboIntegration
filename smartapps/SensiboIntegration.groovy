@@ -322,8 +322,10 @@ def hournotification() {
                 def currentTemperature = d.currentState("temperature").value
                 def currentHumidity = d.currentState("humidity").value
                 def currentBattery = d.currentState("voltage").value
+                def currentAirQuality = d.currentState("AirQualityIndex").value
+                def currentCarbonDioxide = d.currentState("carbonDioxide").value
                 def sunit = d.currentState("temperatureUnit").value
-                stext = "${currentPod} - Temperature: ${currentTemperature} ${sunit} Humidity: ${currentHumidity}% Battery: ${currentBattery}"    
+                stext = "${currentPod} - Temperature: ${currentTemperature} ${sunit} Humidity: ${currentHumidity}% Battery: ${currentBattery} airQualityIndex: ${currentAirQuality} carbonDioxide: ${currentCarbonDioxide}"    
                 
                 sendPush(stext)
             }
@@ -337,8 +339,10 @@ def hournotification() {
                 def currentTemperature = d.currentState("temperature").value
                 def currentHumidity = d.currentState("humidity").value
                 def currentBattery = d.currentState("voltage").value
+                def currentAirQuality = d.currentState("AirQualityIndex").value
+                def currentCarbonDioxide = d.currentState("carbonDioxide").value
                 def sunit = d.currentState("temperatureUnit").value
-                stext = "${currentPod} - Temperature: ${currentTemperature} ${sunit} Humidity: ${currentHumidity}% Battery: ${currentBattery}"    
+                stext = "${currentPod} - Temperature: ${currentTemperature} ${sunit} Humidity: ${currentHumidity}% Battery: ${currentBattery}  airQualityIndex: ${currentAirQuality} carbonDioxide: ${currentCarbonDioxide}"    
                 
                 sendPush(stext)
             }
@@ -619,7 +623,7 @@ def pollChildren(PodUid) {
     uri: "${getServerUrl()}",
     path: "/api/v2/pods/${thermostatIdsString}/measurements",
     requestContentType: "application/json",
-    query: [apiKey:"${getapikey()}", integration:"${version()}", type:"json", fields:"batteryVoltage,temperature,humidity,time"]]
+    query: [apiKey:"${getapikey()}", integration:"${version()}", type:"json", fields:"batteryVoltage,temperature,humidity,time,tvoc,co2"]]
     // query: [apiKey:"${getapikey()}", type:"json", fields:"batteryVoltage,temperature,humidity,time"]]
 
     // debugEvent ("Before HTTPGET to Sensibo.")
@@ -654,6 +658,9 @@ def pollChildren(PodUid) {
                         
                         def stemp = stat.temperature ? stat.temperature.toDouble().round(1) : 0
                         def shumidify = stat.humidity ? stat.humidity.toDouble().round() : 0
+                        def stvoc = stat.tvoc ? stat.tvoc : 0
+                        def sco2 = stat.co2 ? stat.co2 : 0
+
 
                         if (setTemp.temperatureUnit == "F") {
                             stemp = cToF(stemp).round(1)
@@ -680,6 +687,8 @@ def pollChildren(PodUid) {
                         def data = [
                             temperature: stemp,
                             humidity: shumidify,
+                            airQualityIndex: stvoc,
+                            carbonDioxide: sco2,
                             targetTemperature: setTemp.targetTemperature,
                             fanLevel: setTemp.fanLevel,
                             currentmode: setTemp.currentmode,

@@ -33,6 +33,8 @@ metadata {
             capability "PowerSource"
             capability "Refresh"
             capability "RelativeHumidityMeasurement"
+            capability "CarbonDioxideMeasurement"
+            capability "AirQuality"
             capability "Sensor"
             capability "Switch"
             capability "TemperatureMeasurement"
@@ -48,6 +50,8 @@ metadata {
             attribute "statusText","String"
             attribute "currentmode","String"
             attribute "fanLevel","String"
+            attribute "carbonDioxide","String"
+            attribute "airQualityIndex","String"
             //attribute "on","String"   // Added by request of NateG
         
         
@@ -132,6 +136,8 @@ def generateModeEvent(mode) {
 def generateStatusEvent() {
     def temperature = device.currentValue("temperature").toDouble()  
     def humidity = device.currentValue("humidity").toDouble() 
+    def tvoc = device.currentValue("airQualityIndex")
+    def co2 = device.currentValue("carbonDioxide")
     def targetTemperature = device.currentValue("targetTemperature").split(' ')[0].toDouble()
     def fanLevel = device.currentValue("fanLevel")
     def mode = device.currentValue("currentmode")
@@ -1501,6 +1507,12 @@ private getThermostatDescriptionText(name, value, linkText) {
     else if(name == "humidity") {
         return "$name was $value %"
     }
+    else if(name == "airQualityIndex") {
+        return "airQualityIndex was $value"
+    }
+    else if(name == "carbonDioxide") {
+        return "carbonDioxide was $value"
+    }
     else if(name == "targetTemperature") {
         return "latest temperature setpoint was $value " + device.currentState("temperatureUnit").value
     }
@@ -1580,6 +1592,16 @@ def parse(String description) {
     	displayDebugLog("Humidity")
         name = "humidity"
         value = device.currentValue("humidity")
+    }
+    else if (description?.startsWith("carbonDioxide")) {
+    	displayDebugLog("CarbonDioxide")
+        name = "carbonDioxide"
+        value = device.currentValue("carbonDioxide")
+    }
+    else if (description?.startsWith("airQualityIndex")) {
+    	displayDebugLog("airQualityIndex")
+        name = "airQualityIndex"
+        value = device.currentValue("airQualityIndex")
     }
     else if (description?.startsWith("targetTemperature")) {
     	displayDebugLog("targetTemperature")
